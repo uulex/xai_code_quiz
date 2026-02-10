@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XAI Coding Practice</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0e27;
+            --bg-card: #131937;
+            --bg-input: #1a2145;
+            --accent: #00d9ff;
+            --accent-glow: rgba(0, 217, 255, 0.3);
+            --success: #00ff88;
+            --error: #ff4757;
+            --text: #e8eef7;
+            --text-muted: #8892b0;
+            --border: #2d3561;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-dark);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: 
+                repeating-linear-gradient(0deg, var(--accent) 0px, transparent 1px, transparent 40px),
+                repeating-linear-gradient(90deg, var(--accent) 0px, transparent 1px, transparent 40px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #ff006e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .section-select {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        select, button {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            padding: 0.75rem 1.25rem;
+            border: 2px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select {
+            width: 100%;
+        }
+
+        select:hover, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+            outline: none;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--accent), #0099ff);
+            border: none;
+            color: var(--bg-dark);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .question-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .question-points {
+            background: var(--accent);
+            color: var(--bg-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .code-block {
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        .code-line {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0;
+            gap: 1rem;
+        }
+
+        .line-number {
+            color: var(--text-muted);
+            min-width: 30px;
+            text-align: right;
+            user-select: none;
+        }
+
+        .code-content {
+            flex: 1;
+            white-space: pre;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .code-input {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .code-input.correct {
+            border-color: var(--success);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .code-input.incorrect {
+            border-color: var(--error);
+            background: rgba(255, 71, 87, 0.1);
+        }
+
+        .blank-marker {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .feedback {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid var(--success);
+            color: var(--success);
+        }
+
+        .feedback.error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 2px solid var(--error);
+            color: var(--error);
+        }
+
+        .feedback.partial {
+            background: rgba(255, 165, 0, 0.1);
+            border: 2px solid #ffa500;
+            color: #ffa500;
+        }
+
+        .answer-reveal {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-input);
+            border-left: 4px solid var(--accent);
+            border-radius: 4px;
+        }
+
+        .answer-reveal summary {
+            cursor: pointer;
+            user-select: none;
+            font-weight: 700;
+            color: var(--accent);
+            padding: 0.5rem;
+        }
+
+        .answer-reveal summary:hover {
+            text-decoration: underline;
+        }
+
+        .answer-content {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            background: var(--bg-card);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-input);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #ff006e);
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+
+            .question-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .code-line {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .completion-card {
+            background: linear-gradient(135deg, var(--accent), #ff006e);
+            color: var(--bg-dark);
+            padding: 3rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 217, 255, 0.4);
+        }
+
+        .completion-card h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .keyword {
+            color: #ff79c6;
+        }
+
+        .string {
+            color: #50fa7b;
+        }
+
+        .comment {
+            color: var(--text-muted);
+        }
+
+        .function {
+            color: #8be9fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    
+    <div class="container">
+        <header>
+            <h1>XAI Coding Practice</h1>
+            <p class="subtitle">Master your Advanced Explainable AI exam questions</p>
+        </header>
+
+        <div class="controls">
+            <div class="section-select">
+                <select id="sectionSelect">
+                    <option value="all">All Sections (Random)</option>
+                    <option value="gradient">Gradient Descent & Optimization</option>
+                    <option value="cnn">Convolutional Neural Networks</option>
+                    <option value="transfer">Transfer Learning</option>
+                    <option value="nlp">Natural Language Processing</option>
+                    <option value="saliency">Saliency Maps</option>
+                    <option value="gradcam">Grad-CAM</option>
+                    <option value="adversarial">Adversarial Attacks</option>
+                    <option value="regularization">Regularization</option>
+                </select>
+            </div>
+            <button id="nextBtn">Next Question</button>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <span class="stat-value" id="totalAnswered">0</span>
+                <span class="stat-label">Answered</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="correctCount">0</span>
+                <span class="stat-label">Correct</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="accuracy">0%</span>
+                <span class="stat-label">Accuracy</span>
+            </div>
+        </div>
+
+        <div id="questionContainer"></div>
+    </div>
+
+    <script>
+        const questions = [
+            // Gradient Descent Section
+            {
+                section: 'gradient',
+                title: 'Manual Gradient Descent for Linear Regression',
+                points: 3,
+                code: [
+                    'x = np.array([1, 2, 3, 4, 5], dtype=float)',
+                    'y = np.array([3, 5, 7, 9, 11], dtype=float)',
+                    '',
+                    'b = 0.0',
+                    'a = 0.0',
+                    '',
+                    'for epoch in range(10):',
+                    '    y_pred = b * x + a',
+                    '    loss = 0.5*(y_pred - y)**2',
+                    '    ',
+                    '    db = ___BLANK1___  # (1)',
+                    '    da = ___BLANK2___  # (2)',
+                    '    ',
+                    '    b = b - 0.1 * db',
+                    '    a = ___BLANK3___  # (3)'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'np.mean(x * (y_pred - y))' },
+                    { id: 'BLANK2', answer: 'np.mean(y_pred - y)' },
+                    { id: 'BLANK3', answer: 'a - 0.1 * da' }
+                ]
+            },
+            {
+                section: 'gradient',
+                title: 'PyTorch Autograd',
+                points: 4,
+                code: [
+                    'x = torch.tensor([1., 2., 3., 4., 5.])',
+                    'y = torch.tensor([3., 5., 7., 9., 11.])',
+                    '',
+                    'b = torch.zeros(1, requires_grad=___BLANK1___)  # (1)',
+                    'a = torch.zeros(1, requires_grad=True)',
+                    '',
+                    'for epoch in range(10):',
+                    '    y_pred = b * x + a',
+                    '    loss = torch.mean((y - y_pred) ** 2)',
+                    '    ',
+                    '    ___BLANK2___  # (2) Compute gradients',
+                    '    ',
+                    '    with torch.no_grad():',
+                    '        b = b - 0.1 * b.grad',
+                    '        a = a - 0.1 * a.grad',
+                    '    ',
+                    '    ___BLANK3___  # (3) Reset gradients',
+                    '    ___BLANK4___  # (4) Reset gradients'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'True' },
+                    { id: 'BLANK2', answer: 'loss.backward()' },
+                    { id: 'BLANK3', answer: 'b.grad.zero_()' },
+                    { id: 'BLANK4', answer: 'a.grad.zero_()' }
+                ]
+            },
+            {
+                section: 'gradient',
+                title: 'PyTorch Optimizer',
+                points: 3,
+                code: [
+                    'loss_function = nn.CrossEntropyLoss()',
+                    'optimizer = optim.Adam(model.parameters())',
+                    '',
+                    'for epoch in range(30):',
+                    '    for images, labels in train_loader:',
+                    '        ___BLANK1___  # (1) Reset gradients',
+                    '        ',
+                    '        outputs = model(images)',
+                    '        loss = loss_function(outputs, labels)',
+                    '        ',
+                    '        ___BLANK2___  # (2) Compute gradients',
+                    '        ___BLANK3___  # (3) Update weights'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'optimizer.zero_grad()' },
+                    { id: 'BLANK2', answer: 'loss.backward()' },
+                    { id: 'BLANK3', answer: 'optimizer.step()' }
+                ]
+            },
+            // CNN Section
+            {
+                section: 'cnn',
+                title: 'Conv2d Layer',
+                points: 2,
+                code: [
+                    'conv = nn.Conv2d(',
+                    '    in_channels=___BLANK1___,  # (1) RGB images',
+                    '    out_channels=64,',
+                    '    kernel_size=7,',
+                    '    stride=2,',
+                    '    padding=3',
+                    ')'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: '3' }
+                ]
+            },
+            {
+                section: 'cnn',
+                title: 'ConvLayer Class',
+                points: 4,
+                code: [
+                    'class ConvLayer(nn.Module):',
+                    '    def __init__(self, in_channels, out_channels):',
+                    '        super(ConvLayer, self).__init__()',
+                    '        self.conv = nn.Conv2d(___BLANK1___, ___BLANK2___, kernel_size=3, stride=2, padding=1)',
+                    '        self.relu = nn.ReLU()',
+                    '    ',
+                    '    def forward(self, x):',
+                    '        x = self.conv(x)',
+                    '        x = ___BLANK3___  # (3)',
+                    '        return x'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'in_channels' },
+                    { id: 'BLANK2', answer: 'out_channels' },
+                    { id: 'BLANK3', answer: 'self.relu(x)' }
+                ]
+            },
+            {
+                section: 'cnn',
+                title: 'Visualizing Kernels',
+                points: 3,
+                code: [
+                    'weights = model.conv1.weight.data.cpu()',
+                    'print(weights.shape)',
+                    '',
+                    'ker = weights[___BLANK1___]  # (1) Get first kernel',
+                    '',
+                    'ker_normalized = (ker - ker.min()) / (ker.max() - ker.min())',
+                    'ker_normalized = ker_normalized.permute(___BLANK2___, ___BLANK2___, ___BLANK2___)  # (2)',
+                    '',
+                    'plt.imshow(___BLANK3___)  # (3)'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: '0' },
+                    { id: 'BLANK2', answer: '1, 2, 0' },
+                    { id: 'BLANK3', answer: 'ker_normalized' }
+                ]
+            },
+            // Transfer Learning
+            {
+                section: 'transfer',
+                title: 'Loading Pretrained Model',
+                points: 3,
+                code: [
+                    'model_weights = models.ResNet18_Weights.DEFAULT',
+                    'model = models.resnet18(weights=___BLANK1___)  # (1)',
+                    '',
+                    'num_features = model.fc.in_features',
+                    'model.fc = nn.Linear(___BLANK2___, ___BLANK3___)  # (2), (3) for binary classification'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'model_weights' },
+                    { id: 'BLANK2', answer: 'num_features' },
+                    { id: 'BLANK3', answer: '2' }
+                ]
+            },
+            {
+                section: 'transfer',
+                title: 'Computing Accuracy',
+                points: 4,
+                code: [
+                    'model.eval()',
+                    'correct = 0',
+                    'total = 0',
+                    '',
+                    'for images, labels in test_data_loader:',
+                    '    outputs = model(images)',
+                    '    ',
+                    '    preds = outputs.argmax(dim=___BLANK1___)  # (1)',
+                    '    ',
+                    '    correct += (preds == labels).___BLANK2___().item()  # (2)',
+                    '    total += ___BLANK3___  # (3)',
+                    '',
+                    'accuracy = ___BLANK4___ / total  # (4)',
+                    'print(f"Test accuracy: {accuracy}")'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: '1' },
+                    { id: 'BLANK2', answer: 'sum' },
+                    { id: 'BLANK3', answer: 'len(labels)' },
+                    { id: 'BLANK4', answer: 'correct' }
+                ]
+            },
+            // NLP Section
+            {
+                section: 'nlp',
+                title: 'Embedding Layer',
+                points: 3,
+                code: [
+                    'embedding = nn.Embedding(',
+                    '    num_embeddings=___BLANK1___,  # (1) Vocabulary size of 1000',
+                    '    embedding_dim=___BLANK2___    # (2) 128-dimensional embeddings',
+                    ')',
+                    '',
+                    'input_indices = torch.tensor([1, 12, 5])',
+                    'x = embedding(___BLANK3___)  # (3)'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: '1000' },
+                    { id: 'BLANK2', answer: '128' },
+                    { id: 'BLANK3', answer: 'input_indices' }
+                ]
+            },
+            {
+                section: 'nlp',
+                title: 'Multi-Head Attention',
+                points: 2,
+                code: [
+                    'attention = nn.MultiheadAttention(',
+                    '    embed_dim=256,',
+                    '    num_heads=___BLANK1___,  # (1) 8 heads',
+                    '    dropout=0.1,',
+                    '    batch_first=___BLANK2___  # (2) Input: (batch, seq, embed)',
+                    ')',
+                    '',
+                    'x = torch.randn(32, 10, 256)',
+                    'attn_output, attn_weights = attention(x, x, x)'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: '8' },
+                    { id: 'BLANK2', answer: 'True' }
+                ]
+            },
+            // Saliency Maps
+            {
+                section: 'saliency',
+                title: 'Saliency Map Function',
+                points: 4,
+                code: [
+                    'def saliency_map(model, x, target_class):',
+                    '    x.requires_grad = ___BLANK1___  # (1)',
+                    '    ',
+                    '    y = model(x)[0, target_class]',
+                    '    ',
+                    '    ___BLANK2___  # (2) Compute gradients',
+                    '    ',
+                    '    grad_abs = torch.abs(___BLANK3___)  # (3)',
+                    '    ',
+                    '    saliency, _ = torch.max(grad_abs, dim=___BLANK4___)  # (4)',
+                    '    ',
+                    '    return saliency'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'True' },
+                    { id: 'BLANK2', answer: 'y.backward()' },
+                    { id: 'BLANK3', answer: 'x.grad' },
+                    { id: 'BLANK4', answer: '1' }
+                ]
+            },
+            {
+                section: 'saliency',
+                title: 'Integrated Gradients',
+                points: 4,
+                code: [
+                    'def integrated_gradients(model, x, x0, target_class, steps=50):',
+                    '    grads = 0',
+                    '    ',
+                    '    for alpha in torch.linspace(___BLANK1___, ___BLANK2___, steps):  # (1), (2)',
+                    '        x_alpha = x0 + alpha * (x - x0)',
+                    '        x_alpha.requires_grad = ___BLANK3___  # (3)',
+                    '        ',
+                    '        y = model(x_alpha)[0, target_class]',
+                    '        y.backward()',
+                    '        ',
+                    '        grads += x_alpha.___BLANK4___  # (4)',
+                    '    ',
+                    '    return grads / steps'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: '0' },
+                    { id: 'BLANK2', answer: '1' },
+                    { id: 'BLANK3', answer: 'True' },
+                    { id: 'BLANK4', answer: 'grad' }
+                ]
+            },
+            // Grad-CAM
+            {
+                section: 'gradcam',
+                title: 'CAM Implementation',
+                points: 3,
+                code: [
+                    '# feature_maps: shape (num_feature_maps, H, W)',
+                    '# weights: shape (num_feature_maps,)',
+                    '',
+                    'cam = torch.zeros(H, W)',
+                    '',
+                    'for k in range(num_feature_maps):',
+                    '    cam += ___BLANK1___[k] * ___BLANK2___[k]  # (1), (2)',
+                    '',
+                    'cam = torch.relu(___BLANK3___)  # (3)'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'weights' },
+                    { id: 'BLANK2', answer: 'feature_maps' },
+                    { id: 'BLANK3', answer: 'cam' }
+                ]
+            },
+            // Adversarial Attacks
+            {
+                section: 'adversarial',
+                title: 'FGSM Attack',
+                points: 4,
+                code: [
+                    'def fgsm_attack(image, eps, gradient):',
+                    '    sign_grad = ___BLANK1___  # (1)',
+                    '    att_image = ___BLANK2___  # (2)',
+                    '    perturbed_image = torch.clamp(att_image, 0, 1)',
+                    '    return ___BLANK3___  # (3)'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'gradient.sign()' },
+                    { id: 'BLANK2', answer: 'image + eps * sign_grad' },
+                    { id: 'BLANK3', answer: 'perturbed_image' }
+                ]
+            },
+            {
+                section: 'adversarial',
+                title: 'Generating Adversarial Examples',
+                points: 5,
+                code: [
+                    'model = models.resnet18(pretrained=True)',
+                    'image = preprocess_to_tensor(image)',
+                    '',
+                    'image.requires_grad = ___BLANK1___  # (1)',
+                    '',
+                    'output = model(image)',
+                    'loss = loss_func(output, target_label)',
+                    '___BLANK2___  # (2)',
+                    '',
+                    'gradient = ___BLANK3___.___BLANK4___  # (3), (4)',
+                    '',
+                    'adv_image = fgsm_attack(image, eps=0.3, gradient)',
+                    'adv_output = model(adv_image)',
+                    'adv_label = adv_output.___BLANK5___(1)  # (5)'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'True' },
+                    { id: 'BLANK2', answer: 'loss.backward()' },
+                    { id: 'BLANK3', answer: 'image' },
+                    { id: 'BLANK4', answer: 'grad.data' },
+                    { id: 'BLANK5', answer: 'argmax' }
+                ]
+            },
+            // Regularization
+            {
+                section: 'regularization',
+                title: 'Early Stopping',
+                points: 4,
+                code: [
+                    'patience = 3',
+                    'best_val_loss = float("inf")',
+                    'counter = 0',
+                    '',
+                    'for epoch in range(50):',
+                    '    train_loss = train_epoch(model, train_loader)',
+                    '    val_loss = validate(model, val_loader)',
+                    '    ',
+                    '    if val_loss < ___BLANK1___:  # (1)',
+                    '        best_val_loss = ___BLANK2___  # (2)',
+                    '        counter = ___BLANK3___  # (3)',
+                    '    else:',
+                    '        counter += 1',
+                    '        if counter >= ___BLANK4___:  # (4)',
+                    '            break'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'best_val_loss' },
+                    { id: 'BLANK2', answer: 'val_loss' },
+                    { id: 'BLANK3', answer: '0' },
+                    { id: 'BLANK4', answer: 'patience' }
+                ]
+            },
+            {
+                section: 'regularization',
+                title: 'Dropout Layer',
+                points: 2,
+                code: [
+                    'class MLPWithDropout(nn.Module):',
+                    '    def __init__(self):',
+                    '        super(MLPWithDropout, self).__init__()',
+                    '        self.fc1 = nn.Linear(784, 256)',
+                    '        self.dropout = nn.Dropout(p=___BLANK1___)  # (1) 50% dropout',
+                    '        self.fc2 = nn.Linear(256, 10)',
+                    '    ',
+                    '    def forward(self, x):',
+                    '        x = F.relu(self.fc1(x))',
+                    '        x = self.___BLANK2___(x)  # (2)',
+                    '        x = self.fc2(x)',
+                    '        return x'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: '0.5' },
+                    { id: 'BLANK2', answer: 'dropout' }
+                ]
+            }
+        ];
+
+        let currentQuestion = null;
+        let stats = {
+            totalAnswered: 0,
+            correctCount: 0,
+            currentStreak: 0
+        };
+
+        function getRandomQuestion(section = 'all') {
+            let filtered = questions;
+            if (section !== 'all') {
+                filtered = questions.filter(q => q.section === section);
+            }
+            return filtered[Math.floor(Math.random() * filtered.length)];
+        }
+
+        function renderQuestion(question) {
+            currentQuestion = question;
+            const container = document.getElementById('questionContainer');
+            
+            let codeHTML = '<div class="code-block">';
+            let lineNum = 1;
+            
+            question.code.forEach(line => {
+                let processedLine = line;
+                question.blanks.forEach(blank => {
+                    if (line.includes(`___${blank.id}___`)) {
+                        processedLine = processedLine.replace(
+                            `___${blank.id}___`,
+                            `<span class="input-wrapper"><input type="text" class="code-input" data-blank="${blank.id}" placeholder="Type here..."></span>`
+                        );
+                    }
+                });
+                
+                codeHTML += `
+                    <div class="code-line">
+                        <span class="line-number">${lineNum}</span>
+                        <div class="code-content">${processedLine}</div>
+                    </div>
+                `;
+                lineNum++;
+            });
+            
+            codeHTML += '</div>';
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="question-header">
+                        <h2 class="question-title">${question.title}</h2>
+                        <div class="question-points">${question.points} Points</div>
+                    </div>
+                    ${codeHTML}
+                    <div class="action-buttons">
+                        <button onclick="checkAnswers()">Check Answer</button>
+                        <button class="btn-secondary" onclick="revealAnswers()">Show Answer</button>
+                    </div>
+                    <div id="feedback"></div>
+                </div>
+            `;
+        }
+
+        function normalizeAnswer(answer) {
+            return answer.toLowerCase()
+                .replace(/\s+/g, '')
+                .replace(/["']/g, '')
+                .trim();
+        }
+
+        function checkAnswers() {
+            if (!currentQuestion) return;
+            
+            const inputs = document.querySelectorAll('.code-input');
+            let correct = 0;
+            let total = currentQuestion.blanks.length;
+            
+            inputs.forEach(input => {
+                const blankId = input.dataset.blank;
+                const blank = currentQuestion.blanks.find(b => b.id === blankId);
+                const userAnswer = normalizeAnswer(input.value);
+                const correctAnswer = normalizeAnswer(blank.answer);
+                
+                if (userAnswer === correctAnswer) {
+                    input.classList.remove('incorrect');
+                    input.classList.add('correct');
+                    correct++;
+                } else {
+                    input.classList.remove('correct');
+                    input.classList.add('incorrect');
+                }
+            });
+            
+            const feedback = document.getElementById('feedback');
+            if (correct === total) {
+                feedback.className = 'feedback success';
+                feedback.innerHTML = `<strong>🎉 Perfect!</strong> All ${total} blanks correct! (${currentQuestion.points} points)`;
+                stats.correctCount++;
+                stats.currentStreak++;
+            } else if (correct > 0) {
+                feedback.className = 'feedback partial';
+                feedback.innerHTML = `<strong>⚠️ Almost there!</strong> ${correct}/${total} correct. Keep trying!`;
+            } else {
+                feedback.className = 'feedback error';
+                feedback.innerHTML = `<strong>❌ Not quite!</strong> Try again or reveal the answer to learn.`;
+                stats.currentStreak = 0;
+            }
+            
+            stats.totalAnswered++;
+            updateStats();
+        }
+
+        function revealAnswers() {
+            if (!currentQuestion) return;
+            
+            const inputs = document.querySelectorAll('.code-input');
+            inputs.forEach(input => {
+                const blankId = input.dataset.blank;
+                const blank = currentQuestion.blanks.find(b => b.id === blankId);
+                input.value = blank.answer;
+                input.classList.remove('incorrect');
+                input.classList.add('correct');
+            });
+            
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback';
+            feedback.innerHTML = `
+                <details class="answer-reveal">
+                    <summary>💡 Answer Revealed</summary>
+                    <div class="answer-content">
+                        ${currentQuestion.blanks.map((b, i) => 
+                            `<div><strong>(${i+1})</strong> <code>${b.answer}</code></div>`
+                        ).join('')}
+                    </div>
+                </details>
+            `;
+        }
+
+        function updateStats() {
+            document.getElementById('totalAnswered').textContent = stats.totalAnswered;
+            document.getElementById('correctCount').textContent = stats.correctCount;
+            
+            const accuracy = stats.totalAnswered > 0 
+                ? Math.round((stats.correctCount / stats.totalAnswered) * 100) 
+                : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            
+            const progress = stats.totalAnswered > 0 
+                ? Math.min((stats.totalAnswered / questions.length) * 100, 100)
+                : 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            const section = document.getElementById('sectionSelect').value;
+            const question = getRandomQuestion(section);
+            renderQuestion(question);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                checkAnswers();
+            } else if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                document.getElementById('nextBtn').click();
+            }
+        });
+
+        // Initialize with first question
+        renderQuestion(getRandomQuestion());
+    </script>
+</body>
+</html>
