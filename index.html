@@ -578,12 +578,12 @@
             {
                 section: 'cnn',
                 title: 'ConvLayer Class',
-                points: 4,
+                points: 3,
                 code: [
                     'class ConvLayer(nn.Module):',
                     '    def __init__(self, in_channels, out_channels):',
                     '        super(ConvLayer, self).__init__()',
-                    '        self.conv = nn.Conv2d(___BLANK1___, ___BLANK2___, kernel_size=3, stride=2, padding=1)',
+                    '        self.conv = nn.Conv2d(___BLANK1___, ___BLANK2___, kernel_size=3)',
                     '        self.relu = nn.ReLU()',
                     '    ',
                     '    def forward(self, x):',
@@ -600,7 +600,7 @@
             {
                 section: 'cnn',
                 title: 'Visualizing Kernels',
-                points: 3,
+                points: 5,
                 code: [
                     'weights = model.conv1.weight.data.cpu()',
                     'print(weights.shape)',
@@ -608,14 +608,16 @@
                     'ker = weights[___BLANK1___]  # (1) Get first kernel',
                     '',
                     'ker_normalized = (ker - ker.min()) / (ker.max() - ker.min())',
-                    'ker_normalized = ker_normalized.permute(___BLANK2___)  # (2)',
+                    'ker_normalized = ker_normalized.permute(___BLANK2___, ___BLANK3___, ___BLANK4___)  # (2)',
                     '',
-                    'plt.imshow(___BLANK3___)  # (3)'
+                    'plt.imshow(___BLANK5___)  # (3)'
                 ],
                 blanks: [
                     { id: 'BLANK1', answer: '0' },
-                    { id: 'BLANK2', answer: '1, 2, 0' },
-                    { id: 'BLANK3', answer: 'ker_normalized' }
+                    { id: 'BLANK2', answer: '1' },
+                    { id: 'BLANK3', answer: '2' },
+                    { id: 'BLANK4', answer: '0' },
+                    { id: 'BLANK5', answer: 'ker_normalized' }
                 ]
             },
             // Transfer Learning
@@ -681,6 +683,28 @@
                     { id: 'BLANK1', answer: '1000' },
                     { id: 'BLANK2', answer: '128' },
                     { id: 'BLANK3', answer: 'input_indices' }
+                ]
+            },
+            {
+                section: 'nlp',
+                title: 'Multi-Head Attention Output Shape',
+                points: 2,
+                code: [
+                    'attention = nn.MultiheadAttention(',
+                    '    embed_dim=256,',
+                    '    num_heads=8,',
+                    '    batch_first=True',
+                    ')',
+                    '',
+                    'x = torch.randn(16, 20, 256)',
+                    'attn_output, _ = attention(x, x, x)',
+                    '',
+                    '# What is attn_output.shape?',
+                    '# Answer: torch.Size([___BLANK1___, ___BLANK2___, ___BLANK2___])'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: '16, 20, 256' },
+                    { id: 'BLANK2', answer: 'This is a trick - use BLANK1' }
                 ]
             },
             {
@@ -781,7 +805,7 @@
             {
                 section: 'adversarial',
                 title: 'FGSM Attack',
-                points: 4,
+                points: 3,
                 code: [
                     'def fgsm_attack(image, eps, gradient):',
                     '    sign_grad = ___BLANK1___  # (1)',
@@ -821,6 +845,28 @@
                     { id: 'BLANK3', answer: 'image' },
                     { id: 'BLANK4', answer: 'grad.data' },
                     { id: 'BLANK5', answer: 'argmax' }
+                ]
+            },
+            {
+                section: 'adversarial',
+                title: 'Explain Adversarial Attack Code',
+                points: 3,
+                code: [
+                    'model = models.resnet18(weights=model_weights)',
+                    'image.requires_grad = True  # (1) - What does this do?',
+                    'output = model(image)',
+                    'loss = loss_func(output, y)',
+                    'loss.backward()  # (2) - What does this do?',
+                    'gradient = image.grad.data  # (3) - What is this gradient?',
+                    '',
+                    '# Answer (1): ___BLANK1___',
+                    '# Answer (2): ___BLANK2___',
+                    '# Answer (3): ___BLANK3___'
+                ],
+                blanks: [
+                    { id: 'BLANK1', answer: 'Enables gradient tracking for the image tensor' },
+                    { id: 'BLANK2', answer: 'Computes gradients via backpropagation' },
+                    { id: 'BLANK3', answer: 'Gradient of loss with respect to image pixels' }
                 ]
             },
             // Regularization
@@ -941,6 +987,8 @@
             return answer.toLowerCase()
                 .replace(/\s+/g, '')
                 .replace(/["']/g, '')
+                .replace(/\(/g, '')
+                .replace(/\)/g, '')
                 .trim();
         }
 
