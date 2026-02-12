@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XAI Coding Practice</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -23,6 +23,7 @@
             --text: #e8eef7;
             --text-muted: #8892b0;
             --border: #2d3561;
+            --sidebar-bg: #0d1128;
         }
 
         body {
@@ -48,23 +49,164 @@
             z-index: 0;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
+        .app-container {
+            display: flex;
+            height: 100vh;
             position: relative;
             z-index: 1;
         }
 
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            border-right: 2px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .question-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .question-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .question-list::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        .question-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .question-list::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .section-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--bg-dark);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .question-item {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .question-item:hover {
+            background: var(--bg-card);
+            border-left-color: var(--accent);
+        }
+
+        .question-item.active {
+            background: var(--bg-card);
+            border-left-color: var(--accent);
+            box-shadow: inset 0 0 20px rgba(0, 217, 255, 0.1);
+        }
+
+        .question-item.completed {
+            background: rgba(0, 255, 136, 0.1);
+            border-left-color: var(--success);
+        }
+
+        .question-item.completed .question-name {
+            color: var(--success);
+        }
+
+        .question-item.completed::after {
+            content: '✓';
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .question-item.wrong {
+            background: rgba(255, 71, 87, 0.1);
+            border-left-color: var(--error);
+        }
+
+        .question-item.wrong .question-name {
+            color: var(--error);
+        }
+
+        .question-item.wrong::after {
+            content: '✗';
+            color: var(--error);
+            font-weight: 700;
+        }
+
+        .question-name {
+            font-size: 0.85rem;
+            color: var(--text);
+        }
+
+        .question-points {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: var(--bg-input);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
         header {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding: 2rem 0;
+            padding: 2rem;
+            border-bottom: 2px solid var(--border);
+            background: var(--bg-dark);
         }
 
         h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 3.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 2rem;
             font-weight: 700;
             background: linear-gradient(135deg, var(--accent), #ff006e);
             -webkit-background-clip: text;
@@ -72,102 +214,64 @@
             background-clip: text;
             margin-bottom: 0.5rem;
             text-transform: uppercase;
-            letter-spacing: -2px;
+            letter-spacing: -1px;
         }
 
         .subtitle {
             color: var(--text-muted);
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .controls {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .section-select {
-            flex: 1;
-            min-width: 250px;
-        }
-
-        select, button {
-            font-family: 'JetBrains Mono', monospace;
             font-size: 0.9rem;
-            padding: 0.75rem 1.25rem;
-            border: 2px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        select {
-            width: 100%;
-        }
-
-        select:hover, select:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
-            outline: none;
-        }
-
-        button {
-            background: linear-gradient(135deg, var(--accent), #0099ff);
-            border: none;
-            color: var(--bg-dark);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px var(--accent-glow);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         .stats {
             display: flex;
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-top: 1rem;
         }
 
         .stat-card {
             flex: 1;
             background: var(--bg-card);
             border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem;
+            border-radius: 8px;
+            padding: 0.75rem;
             text-align: center;
         }
 
         .stat-value {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--accent);
             display: block;
         }
 
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .content-area::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .content-area::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        .content-area::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 5px;
+        }
+
+        .content-area::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
         }
 
         .question-card {
@@ -175,8 +279,9 @@
             border: 2px solid var(--border);
             border-radius: 16px;
             padding: 2rem;
-            margin-bottom: 2rem;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            margin: 0 auto;
         }
 
         .question-header {
@@ -189,12 +294,13 @@
         }
 
         .question-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.25rem;
             color: var(--accent);
+            font-weight: 700;
         }
 
-        .question-points {
+        .question-points-badge {
             background: var(--accent);
             color: var(--bg-dark);
             padding: 0.5rem 1rem;
@@ -209,7 +315,7 @@
             border-radius: 8px;
             padding: 1.5rem;
             margin: 1rem 0;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Fira Code', monospace;
             font-size: 0.9rem;
             overflow-x: auto;
         }
@@ -240,7 +346,7 @@
         }
 
         .code-input {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Fira Code', monospace;
             font-size: 0.9rem;
             padding: 0.5rem 1rem;
             background: var(--bg-dark);
@@ -265,11 +371,6 @@
         .code-input.incorrect {
             border-color: var(--error);
             background: rgba(255, 71, 87, 0.1);
-        }
-
-        .blank-marker {
-            color: var(--accent);
-            font-weight: 700;
         }
 
         .feedback {
@@ -341,6 +442,29 @@
             margin-top: 1.5rem;
         }
 
+        button {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #0099ff);
+            border: none;
+            color: var(--bg-dark);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
         .btn-secondary {
             background: var(--bg-input);
             border: 2px solid var(--border);
@@ -352,124 +476,101 @@
             background: var(--bg-card);
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: var(--bg-input);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-bottom: 2rem;
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border);
         }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), #ff006e);
-            transition: width 0.5s ease;
+        .btn-nav {
+            flex: 1;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-nav:hover {
+            border-color: var(--accent);
+            background: var(--bg-input);
+        }
+
+        .btn-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-nav:disabled:hover {
+            border-color: var(--border);
+            background: var(--bg-card);
+            transform: none;
         }
 
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
+            .app-container {
+                flex-direction: column;
             }
 
-            .controls {
-                flex-direction: column;
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 300px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
             }
 
             .stats {
                 flex-direction: column;
             }
-
-            .question-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .code-line {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-
-        .completion-card {
-            background: linear-gradient(135deg, var(--accent), #ff006e);
-            color: var(--bg-dark);
-            padding: 3rem;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 217, 255, 0.4);
-        }
-
-        .completion-card h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .keyword {
-            color: #ff79c6;
-        }
-
-        .string {
-            color: #50fa7b;
-        }
-
-        .comment {
-            color: var(--text-muted);
-        }
-
-        .function {
-            color: #8be9fd;
         }
     </style>
 </head>
 <body>
     <div class="bg-pattern"></div>
     
-    <div class="container">
-        <header>
-            <h1>XAI Coding Practice</h1>
-            <p class="subtitle">Master your Advanced Explainable AI exam questions</p>
-        </header>
-
-        <div class="controls">
-            <div class="section-select">
-                <select id="sectionSelect">
-                    <option value="all">All Sections (Random)</option>
-                    <option value="gradient">Gradient Descent & Optimization</option>
-                    <option value="cnn">Convolutional Neural Networks</option>
-                    <option value="transfer">Transfer Learning</option>
-                    <option value="nlp">Natural Language Processing</option>
-                    <option value="saliency">Saliency Maps</option>
-                    <option value="gradcam">Grad-CAM</option>
-                    <option value="adversarial">Adversarial Attacks</option>
-                    <option value="regularization">Regularization</option>
-                </select>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Questions</div>
+                <div class="sidebar-subtitle">Click to navigate</div>
             </div>
-            <button id="nextBtn">Next Question</button>
+            <div class="question-list" id="questionList"></div>
         </div>
 
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-        </div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <header>
+                <h1>XAI Coding Practice</h1>
+                <p class="subtitle">Advanced Explainable AI Exam Preparation</p>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <span class="stat-value" id="totalAnswered">0</span>
+                        <span class="stat-label">Answered</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="correctCount">0</span>
+                        <span class="stat-label">Correct</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="accuracy">0%</span>
+                        <span class="stat-label">Accuracy</span>
+                    </div>
+                </div>
+            </header>
 
-        <div class="stats">
-            <div class="stat-card">
-                <span class="stat-value" id="totalAnswered">0</span>
-                <span class="stat-label">Answered</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-value" id="correctCount">0</span>
-                <span class="stat-label">Correct</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-value" id="accuracy">0%</span>
-                <span class="stat-label">Accuracy</span>
+            <div class="content-area">
+                <div id="questionContainer"></div>
             </div>
         </div>
-
-        <div id="questionContainer"></div>
     </div>
 
     <script>
@@ -477,7 +578,8 @@
             // Gradient Descent Section
             {
                 section: 'gradient',
-                title: 'Manual Gradient Descent for Linear Regression',
+                sectionName: 'Gradient Descent & Optimization',
+                title: 'Manual Gradient Descent',
                 points: 3,
                 code: [
                     'x = np.array([1, 2, 3, 4, 5], dtype=float)',
@@ -504,6 +606,7 @@
             },
             {
                 section: 'gradient',
+                sectionName: 'Gradient Descent & Optimization',
                 title: 'PyTorch Autograd',
                 points: 4,
                 code: [
@@ -535,6 +638,7 @@
             },
             {
                 section: 'gradient',
+                sectionName: 'Gradient Descent & Optimization',
                 title: 'PyTorch Optimizer',
                 points: 3,
                 code: [
@@ -560,6 +664,7 @@
             // CNN Section
             {
                 section: 'cnn',
+                sectionName: 'Convolutional Neural Networks',
                 title: 'Conv2d Layer',
                 points: 2,
                 code: [
@@ -577,6 +682,7 @@
             },
             {
                 section: 'cnn',
+                sectionName: 'Convolutional Neural Networks',
                 title: 'ConvLayer Class',
                 points: 3,
                 code: [
@@ -599,6 +705,7 @@
             },
             {
                 section: 'cnn',
+                sectionName: 'Convolutional Neural Networks',
                 title: 'Visualizing Kernels',
                 points: 5,
                 code: [
@@ -623,6 +730,7 @@
             // Transfer Learning
             {
                 section: 'transfer',
+                sectionName: 'Transfer Learning',
                 title: 'Loading Pretrained Model',
                 points: 3,
                 code: [
@@ -640,6 +748,7 @@
             },
             {
                 section: 'transfer',
+                sectionName: 'Transfer Learning',
                 title: 'Computing Accuracy',
                 points: 4,
                 code: [
@@ -668,6 +777,7 @@
             // NLP Section
             {
                 section: 'nlp',
+                sectionName: 'Natural Language Processing',
                 title: 'Embedding Layer',
                 points: 3,
                 code: [
@@ -687,27 +797,7 @@
             },
             {
                 section: 'nlp',
-                title: 'Multi-Head Attention Output Shape',
-                points: 2,
-                code: [
-                    'attention = nn.MultiheadAttention(',
-                    '    embed_dim=256,',
-                    '    num_heads=8,',
-                    '    batch_first=True',
-                    ')',
-                    '',
-                    'x = torch.randn(16, 20, 256)',
-                    'attn_output, _ = attention(x, x, x)',
-                    '',
-                    '# What is attn_output.shape?',
-                    '# Answer: torch.Size([___BLANK1___])'
-                ],
-                blanks: [
-                    { id: 'BLANK1', answer: '16, 20, 256' },
-                ]
-            },
-            {
-                section: 'nlp',
+                sectionName: 'Natural Language Processing',
                 title: 'Multi-Head Attention',
                 points: 2,
                 code: [
@@ -729,6 +819,7 @@
             // Saliency Maps
             {
                 section: 'saliency',
+                sectionName: 'Saliency Maps',
                 title: 'Saliency Map Function',
                 points: 4,
                 code: [
@@ -754,6 +845,7 @@
             },
             {
                 section: 'saliency',
+                sectionName: 'Saliency Maps',
                 title: 'Integrated Gradients',
                 points: 4,
                 code: [
@@ -781,6 +873,7 @@
             // Grad-CAM
             {
                 section: 'gradcam',
+                sectionName: 'Grad-CAM',
                 title: 'CAM Implementation',
                 points: 3,
                 code: [
@@ -803,6 +896,7 @@
             // Adversarial Attacks
             {
                 section: 'adversarial',
+                sectionName: 'Adversarial Attacks',
                 title: 'FGSM Attack',
                 points: 3,
                 code: [
@@ -820,7 +914,8 @@
             },
             {
                 section: 'adversarial',
-                title: 'Generating Adversarial Examples',
+                sectionName: 'Adversarial Attacks',
+                title: 'Generate Adv. Examples',
                 points: 5,
                 code: [
                     'model = models.resnet18(pretrained=True)',
@@ -843,12 +938,13 @@
                     { id: 'BLANK2', answer: 'loss.backward()' },
                     { id: 'BLANK3', answer: 'image' },
                     { id: 'BLANK4', answer: 'grad.data' },
-                    { id: 'BLANK5', answer: 'argmax(1).item()' }
+                    { id: 'BLANK5', answer: 'argmax' }
                 ]
             },
             {
                 section: 'adversarial',
-                title: 'Explain Adversarial Attack Code',
+                sectionName: 'Adversarial Attacks',
+                title: 'Explain Attack Code',
                 points: 3,
                 code: [
                     'model = models.resnet18(weights=model_weights)',
@@ -871,6 +967,7 @@
             // Regularization
             {
                 section: 'regularization',
+                sectionName: 'Regularization',
                 title: 'Early Stopping',
                 points: 4,
                 code: [
@@ -899,6 +996,7 @@
             },
             {
                 section: 'regularization',
+                sectionName: 'Regularization',
                 title: 'Dropout Layer',
                 points: 2,
                 code: [
@@ -922,23 +1020,59 @@
             }
         ];
 
-        let currentQuestion = null;
+        let currentQuestionIndex = 0;
+        let completedQuestions = new Set();
+        let wrongQuestions = new Set();
         let stats = {
             totalAnswered: 0,
-            correctCount: 0,
-            currentStreak: 0
+            correctCount: 0
         };
 
-        function getRandomQuestion(section = 'all') {
-            let filtered = questions;
-            if (section !== 'all') {
-                filtered = questions.filter(q => q.section === section);
-            }
-            return filtered[Math.floor(Math.random() * filtered.length)];
+        function renderQuestionList() {
+            const listContainer = document.getElementById('questionList');
+            const sections = {};
+            
+            // Group questions by section
+            questions.forEach((q, idx) => {
+                if (!sections[q.section]) {
+                    sections[q.section] = {
+                        name: q.sectionName,
+                        questions: []
+                    };
+                }
+                sections[q.section].questions.push({ ...q, index: idx });
+            });
+
+            // Render sections
+            let html = '';
+            Object.keys(sections).forEach(sectionKey => {
+                const section = sections[sectionKey];
+                html += `<div class="section-group">`;
+                html += `<div class="section-header">${section.name}</div>`;
+                
+                let sectionNumber = 1;
+                section.questions.forEach(q => {
+                    const isActive = q.index === currentQuestionIndex ? 'active' : '';
+                    const isCompleted = completedQuestions.has(q.index) ? 'completed' : '';
+                    const isWrong = wrongQuestions.has(q.index) && !isCompleted ? 'wrong' : '';
+                    html += `
+                        <div class="question-item ${isActive} ${isCompleted} ${isWrong}" onclick="goToQuestion(${q.index})">
+                            <div class="question-name">${section.name} ${sectionNumber}</div>
+                            <div class="question-points">${q.points}P</div>
+                        </div>
+                    `;
+                    sectionNumber++;
+                });
+                
+                html += `</div>`;
+            });
+            
+            listContainer.innerHTML = html;
         }
 
-        function renderQuestion(question) {
-            currentQuestion = question;
+        function renderQuestion(index) {
+            currentQuestionIndex = index;
+            const question = questions[index];
             const container = document.getElementById('questionContainer');
             
             let codeHTML = '<div class="code-block">';
@@ -966,20 +1100,53 @@
             
             codeHTML += '</div>';
             
+            const prevDisabled = index === 0 ? 'disabled' : '';
+            const nextDisabled = index === questions.length - 1 ? 'disabled' : '';
+            
             container.innerHTML = `
                 <div class="question-card">
                     <div class="question-header">
                         <h2 class="question-title">${question.title}</h2>
-                        <div class="question-points">${question.points} Points</div>
+                        <div class="question-points-badge">${question.points} Points</div>
                     </div>
                     ${codeHTML}
                     <div class="action-buttons">
-                        <button onclick="checkAnswers()">Check Answer</button>
+                        <button class="btn-primary" onclick="checkAnswers()">Check Answer</button>
                         <button class="btn-secondary" onclick="revealAnswers()">Show Answer</button>
                     </div>
                     <div id="feedback"></div>
+                    
+                    <div class="nav-buttons">
+                        <button class="btn-nav" onclick="previousQuestion()" ${prevDisabled}>
+                            ← Previous
+                        </button>
+                        <button class="btn-nav" onclick="nextQuestion()" ${nextDisabled}>
+                            Next →
+                        </button>
+                    </div>
                 </div>
             `;
+            
+            renderQuestionList();
+            
+            // Scroll to top of content area
+            document.querySelector('.content-area').scrollTop = 0;
+        }
+
+        function goToQuestion(index) {
+            renderQuestion(index);
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                renderQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                renderQuestion(currentQuestionIndex - 1);
+            }
         }
 
         function normalizeAnswer(answer) {
@@ -992,15 +1159,14 @@
         }
 
         function checkAnswers() {
-            if (!currentQuestion) return;
-            
+            const question = questions[currentQuestionIndex];
             const inputs = document.querySelectorAll('.code-input');
             let correct = 0;
-            let total = currentQuestion.blanks.length;
+            let total = question.blanks.length;
             
             inputs.forEach(input => {
                 const blankId = input.dataset.blank;
-                const blank = currentQuestion.blanks.find(b => b.id === blankId);
+                const blank = question.blanks.find(b => b.id === blankId);
                 const userAnswer = normalizeAnswer(input.value);
                 const correctAnswer = normalizeAnswer(blank.answer);
                 
@@ -1017,29 +1183,44 @@
             const feedback = document.getElementById('feedback');
             if (correct === total) {
                 feedback.className = 'feedback success';
-                feedback.innerHTML = `<strong>🎉 Perfect!</strong> All ${total} blanks correct! (${currentQuestion.points} points)`;
-                stats.correctCount++;
-                stats.currentStreak++;
+                feedback.innerHTML = `<strong>🎉 Perfect!</strong> All ${total} blanks correct! (${question.points} points)`;
+                
+                if (!completedQuestions.has(currentQuestionIndex)) {
+                    completedQuestions.add(currentQuestionIndex);
+                    wrongQuestions.delete(currentQuestionIndex); // Remove from wrong if now correct
+                    stats.correctCount++;
+                    stats.totalAnswered++;
+                    updateStats();
+                    renderQuestionList();
+                }
             } else if (correct > 0) {
                 feedback.className = 'feedback partial';
                 feedback.innerHTML = `<strong>⚠️ Almost there!</strong> ${correct}/${total} correct. Keep trying!`;
+                
+                // Mark as attempted but wrong
+                if (!completedQuestions.has(currentQuestionIndex)) {
+                    wrongQuestions.add(currentQuestionIndex);
+                    renderQuestionList();
+                }
             } else {
                 feedback.className = 'feedback error';
                 feedback.innerHTML = `<strong>❌ Not quite!</strong> Try again or reveal the answer to learn.`;
-                stats.currentStreak = 0;
+                
+                // Mark as wrong
+                if (!completedQuestions.has(currentQuestionIndex)) {
+                    wrongQuestions.add(currentQuestionIndex);
+                    renderQuestionList();
+                }
             }
-            
-            stats.totalAnswered++;
-            updateStats();
         }
 
         function revealAnswers() {
-            if (!currentQuestion) return;
-            
+            const question = questions[currentQuestionIndex];
             const inputs = document.querySelectorAll('.code-input');
+            
             inputs.forEach(input => {
                 const blankId = input.dataset.blank;
-                const blank = currentQuestion.blanks.find(b => b.id === blankId);
+                const blank = question.blanks.find(b => b.id === blankId);
                 input.value = blank.answer;
                 input.classList.remove('incorrect');
                 input.classList.add('correct');
@@ -1051,7 +1232,7 @@
                 <details class="answer-reveal">
                     <summary>💡 Answer Revealed</summary>
                     <div class="answer-content">
-                        ${currentQuestion.blanks.map((b, i) => 
+                        ${question.blanks.map((b, i) => 
                             `<div><strong>(${i+1})</strong> <code>${b.answer}</code></div>`
                         ).join('')}
                     </div>
@@ -1067,31 +1248,23 @@
                 ? Math.round((stats.correctCount / stats.totalAnswered) * 100) 
                 : 0;
             document.getElementById('accuracy').textContent = accuracy + '%';
-            
-            const progress = stats.totalAnswered > 0 
-                ? Math.min((stats.totalAnswered / questions.length) * 100, 100)
-                : 0;
-            document.getElementById('progressFill').style.width = progress + '%';
         }
-
-        document.getElementById('nextBtn').addEventListener('click', () => {
-            const section = document.getElementById('sectionSelect').value;
-            const question = getRandomQuestion(section);
-            renderQuestion(question);
-        });
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 'Enter') {
                 checkAnswers();
-            } else if (e.ctrlKey && e.key === 'n') {
+            } else if (e.ctrlKey && e.key === 'ArrowRight') {
                 e.preventDefault();
-                document.getElementById('nextBtn').click();
+                nextQuestion();
+            } else if (e.ctrlKey && e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousQuestion();
             }
         });
 
-        // Initialize with first question
-        renderQuestion(getRandomQuestion());
+        // Initialize
+        renderQuestion(0);
     </script>
 </body>
 </html>
